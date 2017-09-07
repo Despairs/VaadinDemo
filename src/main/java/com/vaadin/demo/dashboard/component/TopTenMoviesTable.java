@@ -40,7 +40,7 @@ public final class TopTenMoviesTable extends Table {
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_SMALL);
         setSortEnabled(false);
-        setColumnAlignment("revenue", Align.RIGHT);
+//        setColumnAlignment("revenue", Align.RIGHT);
         setRowHeaderMode(RowHeaderMode.INDEX);
         setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
         setSizeFull();
