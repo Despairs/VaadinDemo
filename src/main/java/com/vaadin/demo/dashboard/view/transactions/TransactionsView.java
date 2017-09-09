@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.demo.dashboard.DashboardUI;
 import com.vaadin.demo.dashboard.domain.Transaction;
@@ -46,10 +47,8 @@ public final class TransactionsView extends VerticalLayout implements View {
     private SingleSelect<Transaction> singleSelect;
     private Button createReport;
     private String filterValue = "";
-    private static final DateFormat DATEFORMAT = new SimpleDateFormat(
-            "MM/dd/yyyy hh:mm:ss a");
-    private static final DecimalFormat DECIMALFORMAT = new DecimalFormat(
-            "#.##");
+    private static final DateFormat DATEFORMAT = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+    private static final DecimalFormat DECIMALFORMAT = new DecimalFormat("#.##");
     private static final Set<Column<Transaction, ?>> collapsibleColumns = new LinkedHashSet<>();
 
     public TransactionsView() {
@@ -112,16 +111,14 @@ public final class TransactionsView extends VerticalLayout implements View {
 
             Collection<Transaction> transactions = DashboardUI.getDataProvider()
                     .getRecentTransactions(200).stream().filter(transaction -> {
-                        filterValue = filter.getValue().trim().toLowerCase();
-                        return passesFilter(transaction.getCountry())
-                                || passesFilter(transaction.getTitle())
-                                || passesFilter(transaction.getCity());
-                    }).collect(Collectors.toList());
+                filterValue = filter.getValue().trim().toLowerCase();
+                return passesFilter(transaction.getCountry())
+                        || passesFilter(transaction.getTitle())
+                        || passesFilter(transaction.getCity());
+            }).collect(Collectors.toList());
 
-            ListDataProvider<Transaction> dataProvider = com.vaadin.data.provider.DataProvider
-                    .ofCollection(transactions);
-            dataProvider.addSortComparator(Comparator
-                    .comparing(Transaction::getTime).reversed()::compare);
+            ListDataProvider<Transaction> dataProvider = DataProvider.ofCollection(transactions);
+            dataProvider.addSortComparator(Comparator.comparing(Transaction::getTime).reversed()::compare);
             grid.setDataProvider(dataProvider);
         });
 
@@ -130,12 +127,12 @@ public final class TransactionsView extends VerticalLayout implements View {
         filter.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         filter.addShortcutListener(
                 new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
-                    @Override
-                    public void handleAction(final Object sender,
-                            final Object target) {
-                        filter.setValue("");
-                    }
-                });
+            @Override
+            public void handleAction(final Object sender,
+                    final Object target) {
+                filter.setValue("");
+            }
+        });
         return filter;
     }
 
@@ -167,26 +164,21 @@ public final class TransactionsView extends VerticalLayout implements View {
 
         grid.setColumnReorderingAllowed(true);
 
-        ListDataProvider<Transaction> dataProvider = com.vaadin.data.provider.DataProvider
-                .ofCollection(DashboardUI.getDataProvider()
-                        .getRecentTransactions(200));
-        dataProvider.addSortComparator(
-                Comparator.comparing(Transaction::getTime).reversed()::compare);
+        Collection<Transaction> transactions = DashboardUI.getDataProvider().getRecentTransactions(200);
+        ListDataProvider<Transaction> dataProvider = DataProvider.ofCollection(transactions);
+        dataProvider.addSortComparator(Comparator.comparing(Transaction::getTime).reversed()::compare);
         grid.setDataProvider(dataProvider);
 
         // TODO either add these to grid or do it with style generators here
         // grid.setColumnAlignment("seats", Align.RIGHT);
         // grid.setColumnAlignment("price", Align.RIGHT);
-
         // TODO add when footers implemented in v8
         // grid.setFooterVisible(true);
         // grid.setColumnFooter("time", "Total");
         // grid.setColumnFooter("price", "$" + DECIMALFORMAT
         // .format(DashboardUI.getDataProvider().getTotalSum()));
-
         // TODO add this functionality to grid?
         // grid.addActionHandler(new TransactionsActionHandler());
-
         grid.addSelectionListener(
                 event -> createReport.setEnabled(!singleSelect.isEmpty()));
         return grid;
@@ -210,8 +202,7 @@ public final class TransactionsView extends VerticalLayout implements View {
 
         if (defaultColumnsVisible()) {
             for (Column<Transaction, ?> column : collapsibleColumns) {
-                column.setHidden(
-                        Page.getCurrent().getBrowserWindowWidth() < 800);
+                column.setHidden(Page.getCurrent().getBrowserWindowWidth() < 800);
             }
         }
     }

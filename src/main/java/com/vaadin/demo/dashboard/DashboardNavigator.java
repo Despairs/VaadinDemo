@@ -1,6 +1,5 @@
 package com.vaadin.demo.dashboard;
 
-import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 
 import com.vaadin.demo.dashboard.event.DashboardEvent.BrowserResizeEvent;
 import com.vaadin.demo.dashboard.event.DashboardEvent.CloseOpenWindowsEvent;
@@ -17,31 +16,15 @@ import com.vaadin.ui.UI;
 @SuppressWarnings("serial")
 public class DashboardNavigator extends Navigator {
 
-    // Provide a Google Analytics tracker id here
-    private static final String TRACKER_ID = null;// "UA-658457-6";
-    private GoogleAnalyticsTracker tracker;
-
     private static final DashboardViewType ERROR_VIEW = DashboardViewType.DASHBOARD;
     private ViewProvider errorViewProvider;
 
     public DashboardNavigator(final ComponentContainer container) {
         super(UI.getCurrent(), container);
 
-        String host = getUI().getPage().getLocation().getHost();
-        if (TRACKER_ID != null && host.endsWith("demo.vaadin.com")) {
-            initGATracker(TRACKER_ID);
-        }
         initViewChangeListener();
         initViewProviders();
 
-    }
-
-    private void initGATracker(final String trackerId) {
-        tracker = new GoogleAnalyticsTracker(trackerId, "demo.vaadin.com");
-
-        // GoogleAnalyticsTracker is an extension add-on for UI so it is
-        // initialized by calling .extend(UI)
-        tracker.extend(UI.getCurrent());
     }
 
     private void initViewChangeListener() {
@@ -63,10 +46,6 @@ public class DashboardNavigator extends Navigator {
                 DashboardEventBus.post(new BrowserResizeEvent());
                 DashboardEventBus.post(new CloseOpenWindowsEvent());
 
-                if (tracker != null) {
-                    // The view change is submitted as a pageview for GA tracker
-                    tracker.trackPageview("/dashboard/" + event.getViewName());
-                }
             }
         });
     }
@@ -74,8 +53,7 @@ public class DashboardNavigator extends Navigator {
     private void initViewProviders() {
         // A dedicated view provider is added for each separate view type
         for (final DashboardViewType viewType : DashboardViewType.values()) {
-            ViewProvider viewProvider = new ClassBasedViewProvider(
-                    viewType.getViewName(), viewType.getViewClass()) {
+            ViewProvider viewProvider = new ClassBasedViewProvider(viewType.getViewName(), viewType.getViewClass()) {
 
                 // This field caches an already initialized view instance if the
                 // view should be cached (stateful views).
@@ -88,8 +66,7 @@ public class DashboardNavigator extends Navigator {
                         if (viewType.isStateful()) {
                             // Stateful views get lazily instantiated
                             if (cachedInstance == null) {
-                                cachedInstance = super.getView(viewType
-                                        .getViewName());
+                                cachedInstance = super.getView(viewType.getViewName());
                             }
                             result = cachedInstance;
                         } else {

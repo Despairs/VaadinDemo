@@ -84,10 +84,22 @@
                     border: 0px;
 
                     .v-grid-row > td {
+                        
+                        .high-price > td {
+                            background-color: red;
+                            color: darkblue;
+                        }
+                        
+                        .middle-price > td {
+                            background-color: yellow;
+                            color: greenyellow;
+                        }
+                        
                         background-color: white;
                         border: 0px;
                         min-width: 55px;
                     }  
+                    
                 }
 
                 .v-grid-cell-focused:before {
